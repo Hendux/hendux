@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Download, Lock, Sparkles, ZoomIn, ZoomOut } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,17 +13,17 @@ export function DocViewer({ doc, onClose }: { doc: OpenDoc | null; onClose: () =
   const [page, setPage] = useState(1);
   const [zoom, setZoom] = useState(1);
   const { openAI } = useHendux();
+  useEffect(() => {
+    if (doc) {
+      setPage(doc.startPage ?? 1);
+      setZoom(1);
+    }
+  }, [doc]);
   const content = doc ? getDocContent(doc.title, doc.code) : null;
   const locked = !!doc?.pro;
 
   return (
-    <Dialog
-      open={!!doc}
-      onOpenChange={(o) => {
-        if (!o) onClose();
-        else setPage(doc?.startPage ?? 1);
-      }}
-    >
+    <Dialog open={!!doc} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="flex max-h-[92vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
         {doc && content && (
           <>

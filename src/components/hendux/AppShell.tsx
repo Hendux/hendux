@@ -2,7 +2,7 @@ import { Link, type LinkProps } from "@tanstack/react-router";
 import { Bell, BookOpen, ChevronDown, GraduationCap, Home, Megaphone, Sparkles, Target, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { useHendux } from "@/lib/hendux-store";
-import { isDefaultContext } from "@/lib/hendux-data";
+import { DEFAULT_CONTEXT, isDefaultContext } from "@/lib/hendux-data";
 import { cn } from "@/lib/utils";
 import { HenduxMark } from "./badges";
 import { ContextSwitcher } from "./ContextSwitcher";
@@ -125,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span>
                 Previewing {ctx.department} {ctx.level}L · {ctx.semester === 1 ? "1st" : "2nd"} Semester
               </span>
-              <button onClick={() => setCtx({ ...ctx, department: "Computer Science", departmentShort: "Comp Sci", level: 300, semester: 1 })} className="ml-auto font-semibold underline underline-offset-2">
+              <button onClick={() => setCtx(DEFAULT_CONTEXT)} className="ml-auto font-semibold underline underline-offset-2">
                 Back to my courses
               </button>
             </div>
