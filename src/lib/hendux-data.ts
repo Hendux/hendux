@@ -84,7 +84,7 @@ export function getCourses(ctx: AcademicContext): Course[] {
   const dept = DEPARTMENTS.find((d) => d.name === ctx.department) ?? DEPARTMENTS[0];
   const pairs: [string, string][] = isDefaultContext(ctx)
     ? CORE_CSC_300_1
-    : DEPT_TITLES[dept.prefix].map((title, i) => {
+    : (DEPT_TITLES[dept.prefix] ?? []).map((title, i) => {
         const n = ctx.semester === 1 ? 2 * i + 1 : 2 * i + 2;
         return [`${dept.prefix} ${ctx.level / 100}${String(n).padStart(2, "0")}`, title];
       });
@@ -92,11 +92,11 @@ export function getCourses(ctx: AcademicContext): Course[] {
     id: code.toLowerCase().replace(" ", "-"),
     code,
     title,
-    lecturer: LECTURERS[i],
+    lecturer: LECTURERS[i]!,
     units: i === 2 ? 2 : 3,
-    venue: VENUES[i],
-    tone: TONES[i],
-    progress: PROGRESS[i],
+    venue: VENUES[i]!,
+    tone: TONES[i]!,
+    progress: PROGRESS[i]!,
   }));
 }
 

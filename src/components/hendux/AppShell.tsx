@@ -1,4 +1,4 @@
-import { Link, type LinkProps } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Bell, BookOpen, ChevronDown, GraduationCap, Home, Megaphone, Sparkles, Target, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { useHendux } from "@/lib/hendux-store";
@@ -8,7 +8,7 @@ import { HenduxMark } from "./badges";
 import { ContextSwitcher } from "./ContextSwitcher";
 import { AIAssistant } from "./AIAssistant";
 
-const NAV: { to: LinkProps["to"]; label: string; layer?: string; Icon: typeof Home }[] = [
+const NAV: { to: "/" | "/updates" | "/resources" | "/prepare" | "/profile"; label: string; layer?: string; Icon: typeof Home }[] = [
   { to: "/", label: "Home", Icon: Home },
   { to: "/updates", label: "Updates", layer: "Know", Icon: Megaphone },
   { to: "/resources", label: "Resources", layer: "Find", Icon: BookOpen },
