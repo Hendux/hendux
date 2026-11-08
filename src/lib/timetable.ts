@@ -17,19 +17,19 @@ export type ClassSlot = {
   lecturer: string;
   venue: string;
   kind: "Lecture" | "Lab" | "Tutorial";
-  status?: LiveStatus;
+  status?: LiveStatus | undefined;
 };
 
 export const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 export const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function toMinutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
+  const [h = 0, m = 0] = hhmm.split(":").map(Number);
   return h * 60 + m;
 }
 
 export function formatTime(hhmm: string): string {
-  const [h, m] = hhmm.split(":").map(Number);
+  const [h = 0, m = 0] = hhmm.split(":").map(Number);
   const suffix = h >= 12 ? "PM" : "AM";
   const hour = h % 12 === 0 ? 12 : h % 12;
   return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;

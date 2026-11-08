@@ -40,7 +40,7 @@ function useCountdown(target: Date) {
 
 function PreparePage() {
   const { ctx, openAI } = useHendux();
-  const [next] = getExams(ctx);
+  const next = getExams(ctx)[0]!;
   const cd = useCountdown(next.date);
   const [mockOpen, setMockOpen] = useState(false);
   const avg = Math.round(MASTERY.reduce((s, m) => s + m.score, 0) / MASTERY.length);

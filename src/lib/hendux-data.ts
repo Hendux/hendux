@@ -132,7 +132,7 @@ const TEMPLATE: TemplateSlot[] = [
 export function getTimetable(ctx: AcademicContext): ClassSlot[] {
   const courses = getCourses(ctx);
   return TEMPLATE.map((t, i) => {
-    const course = courses[t.c];
+    const course = courses[t.c]!;
     return {
       id: `slot-${i}`,
       day: t.day,
@@ -173,8 +173,8 @@ const EXAM_PLAN = [
 export function getExams(ctx: AcademicContext): Exam[] {
   const courses = getCourses(ctx);
   return EXAM_PLAN.map((e) => {
-    const course = courses[e.c];
-    const [h, m] = e.start.split(":").map(Number);
+    const course = courses[e.c]!;
+    const [h = 0, m = 0] = e.start.split(":").map(Number);
     return {
       courseId: course.id,
       code: course.code,

@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 
 export function UrgencyStrip() {
   const [expanded, setExpanded] = useState(false);
-  const [first, ...rest] = URGENT_ITEMS;
+  const first = URGENT_ITEMS[0]!;
+  const rest = URGENT_ITEMS.slice(1);
   const items = expanded ? URGENT_ITEMS : [first];
 
   return (

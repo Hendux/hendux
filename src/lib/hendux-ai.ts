@@ -103,7 +103,7 @@ export function answer(prompt: string, ctx: AcademicContext): AIReply {
   }
 
   if (p.includes("exam")) {
-    const [first] = getExams(ctx);
+    const first = getExams(ctx)[0]!;
     return {
       mode: "campus",
       text: `Your first paper is ${first.code} ${first.title} on ${first.date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}, ${formatTime(first.start)} at ${first.hall} (${first.seats}).`,

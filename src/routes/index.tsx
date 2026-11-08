@@ -39,9 +39,9 @@ function SectionHead({ title, layer, to, cta }: { title: string; layer?: string;
 function Home() {
   const { ctx, openAI } = useHendux();
   const courses = getCourses(ctx);
-  const [nextExam] = getExams(ctx);
+  const nextExam = getExams(ctx)[0]!;
   const daysToExam = Math.ceil((nextExam.date.getTime() - DEMO_NOW.getTime()) / 86400000);
-  const weakest = [...MASTERY].sort((a, b) => a.score - b.score)[0];
+  const weakest = [...MASTERY].sort((a, b) => a.score - b.score)[0]!;
 
   return (
     <div className="space-y-6">

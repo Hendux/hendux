@@ -8,7 +8,7 @@ export function PracticeQuiz() {
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
-  const q = SAMPLE_QUIZ[index];
+  const q = SAMPLE_QUIZ[index]!;
 
   const pick = (i: number) => {
     if (picked !== null) return;
