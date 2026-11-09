@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as UpdatesRouteImport } from './routes/updates'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
 import { Route as ResourcesCourseIdRouteImport } from './routes/resources.$courseId'
 
@@ -20,14 +23,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
   path: '/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
@@ -43,45 +61,75 @@ const ResourcesCourseIdRoute = ResourcesCourseIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
+  '/setup': typeof SetupRoute
   '/updates': typeof UpdatesRoute
+  '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
+  '/setup': typeof SetupRoute
   '/updates': typeof UpdatesRoute
+  '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/resources': typeof ResourcesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/profile': typeof ProfileRoute
+  '/setup': typeof SetupRoute
   '/updates': typeof UpdatesRoute
+  '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/profile' | '/updates' | '/resources/$courseId' | '/resources/'
+    | '/'
+    | '/auth'
+    | '/profile'
+    | '/setup'
+    | '/updates'
+    | '/welcome'
+    | '/resources/$courseId'
+    | '/resources/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/updates' | '/resources/$courseId' | '/resources'
+  to:
+    | '/'
+    | '/auth'
+    | '/profile'
+    | '/setup'
+    | '/updates'
+    | '/welcome'
+    | '/resources/$courseId'
+    | '/resources'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/profile'
+    | '/setup'
     | '/updates'
+    | '/welcome'
     | '/resources/$courseId'
     | '/resources/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ProfileRoute: typeof ProfileRoute
+  SetupRoute: typeof SetupRoute
   UpdatesRoute: typeof UpdatesRoute
+  WelcomeRoute: typeof WelcomeRoute
   ResourcesCourseIdRoute: typeof ResourcesCourseIdRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
 }
@@ -95,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -102,11 +157,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/updates': {
       id: '/updates'
       path: '/updates'
       fullPath: '/updates'
       preLoaderRoute: typeof UpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources/': {
@@ -128,8 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ProfileRoute: ProfileRoute,
+  SetupRoute: SetupRoute,
   UpdatesRoute: UpdatesRoute,
+  WelcomeRoute: WelcomeRoute,
   ResourcesCourseIdRoute: ResourcesCourseIdRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
 }
