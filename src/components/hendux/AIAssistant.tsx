@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Brain, Building2, Send, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Brain, Building2, Paperclip, Send, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useHendux } from "@/lib/hendux-store";
 import { MODE_LABEL, answer, type AIMode, type AIReply } from "@/lib/hendux-ai";
 import { cn } from "@/lib/utils";
-import { TierBadge } from "./badges";
+import { HenduxLogo, TierBadge } from "./badges";
 
 type Msg = { id: number; role: "user" } & { text: string } | { id: number; role: "ai"; reply: AIReply };
 
@@ -16,7 +16,8 @@ const MODES: { id: AIMode; Icon: typeof Brain; prompts: string[] }[] = [
 ];
 
 export function AIAssistant() {
-  const { aiOpen, closeAI, aiSeed, ctx } = useHendux();
+  const { aiOpen, closeAI, aiSeed, ctx, courses, profile, addChat } = useHendux();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<AIMode>("campus");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -27,11 +28,12 @@ export function AIAssistant() {
   const send = (text: string) => {
     const t = text.trim();
     if (!t || typing) return;
+    if (messages.length === 0) addChat(t);
     setMessages((m) => [...m, { id: Date.now(), role: "user", text: t }]);
     setInput("");
     setTyping(true);
     window.setTimeout(() => {
-      const reply = answer(t, ctx);
+      const reply = answer(t, ctx, courses);
       setMode(reply.mode);
       setMessages((m) => [...m, { id: Date.now() + 1, role: "ai", reply }]);
       setTyping(false);
@@ -57,13 +59,11 @@ export function AIAssistant() {
       <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
         <SheetHeader className="bg-ink-gradient p-5 text-ink-foreground">
           <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl bg-primary-gradient shadow-glow">
-              <Sparkles className="size-5" />
-            </span>
+            <HenduxLogo className="h-10" />
             <div className="text-left">
               <SheetTitle className="font-display text-lg text-ink-foreground">Hendux AI</SheetTitle>
               <SheetDescription className="text-xs text-ink-muted">
-                {ctx.universityShort} · {ctx.departmentShort} {ctx.level}L — answers cite their sources
+                {ctx.universityShort} · {ctx.departmentShort} {ctx.level}L · answers cite their sources
               </SheetDescription>
             </div>
           </div>
@@ -87,9 +87,9 @@ export function AIAssistant() {
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto bg-background p-4">
           {messages.length === 0 && (
             <div className="rounded-2xl bg-card p-4 shadow-card ring-1 ring-border">
-              <p className="font-display text-base font-semibold">Good morning, Prosper 👋</p>
+              <p className="font-display text-base font-semibold">Hi {profile.name.split(" ")[0]} 👋</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                I'm your {MODE_LABEL[mode]}. Ask me anything, or start with a suggestion below.
+                I'm your {MODE_LABEL[mode]}. Ask me anything, attach a PDF to summarise, or start with a suggestion below.
               </p>
             </div>
           )}
@@ -159,8 +159,22 @@ export function AIAssistant() {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2 rounded-xl bg-muted p-1.5 pl-3"
+            className="flex items-center gap-2 rounded-xl bg-muted p-1.5 pl-1.5"
           >
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) send(`Summarize "${f.name}"`);
+                e.target.value = "";
+              }}
+            />
+            <button type="button" onClick={() => fileRef.current?.click()} className="grid size-9 place-items-center rounded-lg text-muted-foreground transition hover:bg-card hover:text-foreground" aria-label="Attach a PDF">
+              <Paperclip className="size-4" />
+            </button>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
