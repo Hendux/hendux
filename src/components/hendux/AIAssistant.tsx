@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Brain, Building2, Paperclip, Send, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Brain, Building2, Paperclip, Send } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useHendux } from "@/lib/hendux-store";
 import { MODE_LABEL, answer, type AIMode, type AIReply } from "@/lib/hendux-ai";

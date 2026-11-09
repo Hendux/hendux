@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -85,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Hendux — Academic intelligence for your university" },
-      { name: "description", content: "Know, Find, Prepare: timetable, verified campus updates, past questions and exam prep for UNILAG students." },
+      { name: "description", content: "Know, Find, Prepare: timetable, verified campus updates, past questions and exam prep for university students." },
       { name: "author", content: "Hendux" },
       { property: "og:title", content: "Hendux — Academic intelligence for your university" },
       { property: "og:description", content: "Know, Find, Prepare: timetable, verified campus updates, past questions and exam prep." },
@@ -104,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -129,14 +130,21 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Splash, auth and setup screens render without the app's navigation.
+  const bare = ["/welcome", "/auth", "/setup"].some((p) => pathname.startsWith(p));
 
   return (
     <QueryClientProvider client={queryClient}>
       <HenduxProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        {bare ? (
           <Outlet />
-        </AppShell>
+        ) : (
+          <AppShell>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </AppShell>
+        )}
         <Toaster position="top-center" richColors />
       </HenduxProvider>
     </QueryClientProvider>
