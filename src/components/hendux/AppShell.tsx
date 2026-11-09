@@ -1,172 +1,143 @@
-import { Link } from "@tanstack/react-router";
-import { Bell, BookOpen, ChevronDown, GraduationCap, Home, Megaphone, Sparkles, Target, User } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Bell, BookOpen, Home, Megaphone, Sparkles, User } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useHendux } from "@/lib/hendux-store";
-import { DEFAULT_CONTEXT, isDefaultContext } from "@/lib/hendux-data";
-import { cn } from "@/lib/utils";
-import { HenduxMark } from "./badges";
-import { ContextSwitcher } from "./ContextSwitcher";
+import { Avatar, HenduxLogo } from "./badges";
 import { AIAssistant } from "./AIAssistant";
 
-const NAV: { to: "/" | "/updates" | "/resources" | "/prepare" | "/profile"; label: string; layer?: string; Icon: typeof Home }[] = [
-  { to: "/", label: "Home", Icon: Home },
-  { to: "/updates", label: "Updates", layer: "Know", Icon: Megaphone },
-  { to: "/resources", label: "Resources", layer: "Find", Icon: BookOpen },
-  { to: "/prepare", label: "Prepare", layer: "Prepare", Icon: Target },
-  { to: "/profile", label: "Profile", Icon: User },
+type NavTo = "/" | "/updates" | "/resources" | "/ai" | "/profile";
+const NAV: { to: NavTo; label: string; short: string; Icon: typeof Home }[] = [
+  { to: "/", label: "Home", short: "Home", Icon: Home },
+  { to: "/updates", label: "Campus Updates", short: "Updates", Icon: Megaphone },
+  { to: "/resources", label: "Resources", short: "Resources", Icon: BookOpen },
+  { to: "/ai", label: "Hendux AI", short: "Hendux AI", Icon: Sparkles },
+  { to: "/profile", label: "Profile", short: "Profile", Icon: User },
 ];
 
-export function ContextPill({ className, tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
-  const { ctx, setSwitcherOpen } = useHendux();
-  const parts = [ctx.universityShort, ctx.facultyShort, ctx.departmentShort, `${ctx.level}L`, ctx.semester === 1 ? "1st Sem" : "2nd Sem"];
+const NOTIFICATIONS = [
+  { title: "CSC 305 lab moved to Computing Lab B", when: "25 min ago" },
+  { title: "Exam timetable release date confirmed", when: "2h ago" },
+  { title: "Lab Report 3 is due tonight at 11:59 PM", when: "Today" },
+];
+
+export function SplashMark() {
   return (
-    <button
-      type="button"
-      onClick={() => setSwitcherOpen(true)}
-      className={cn(
-        "group inline-flex max-w-full items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-xs font-semibold transition",
-        tone === "light"
-          ? "bg-card text-foreground shadow-card ring-1 ring-border hover:ring-primary/40"
-          : "bg-sidebar-accent text-sidebar-foreground ring-1 ring-sidebar-border hover:bg-sidebar-accent/80",
-        className,
-      )}
-      aria-label="Switch academic context"
-    >
-      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-        <GraduationCap className="size-3.5" />
-      </span>
-      <span className="truncate">
-        {parts.map((p, i) => (
-          <span key={p}>
-            {i > 0 && <span className="mx-1 opacity-40">•</span>}
-            {p}
-          </span>
-        ))}
-      </span>
-      {!isDefaultContext(ctx) && <span className="size-1.5 shrink-0 rounded-full bg-pro" aria-label="Previewing another context" />}
-      <ChevronDown className="size-3.5 shrink-0 opacity-60 transition group-hover:translate-y-0.5" />
-    </button>
+    <div className="grid min-h-screen place-items-center bg-background">
+      <HenduxLogo className="h-20 animate-pulse" />
+    </div>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { openAI, ctx, setCtx } = useHendux();
-  const previewing = !isDefaultContext(ctx);
+  const { hydrated, signedIn, onboarded, openAI, profile } = useHendux();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const onAIScreen = pathname === "/ai" || pathname.startsWith("/ai/");
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!signedIn) navigate({ to: "/welcome", replace: true });
+    else if (!onboarded) navigate({ to: "/setup", replace: true });
+  }, [hydrated, signedIn, onboarded, navigate]);
+
+  if (!hydrated || !signedIn || !onboarded) return <SplashMark />;
 
   return (
     <div className="min-h-screen">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-ink-gradient p-5 text-sidebar-foreground lg:flex">
         <div className="grid-dots pointer-events-none absolute inset-0 opacity-60" />
-        <div className="relative flex items-center gap-3">
-          <HenduxMark />
+        <Link to="/" className="relative flex items-center gap-3">
+          <HenduxLogo className="h-10" />
           <div>
             <p className="font-display text-xl font-bold leading-none">Hendux</p>
             <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-ink-muted">Know · Find · Prepare</p>
           </div>
-        </div>
+        </Link>
         <nav className="relative mt-10 flex flex-col gap-1">
-          {NAV.map(({ to, label, layer, Icon }) => (
+          {NAV.map(({ to, label, Icon }) => (
             <Link
-              key={label}
+              key={to}
               to={to}
               activeOptions={{ exact: to === "/" }}
-              className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-muted transition hover:bg-sidebar-accent hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-foreground"
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-muted transition hover:bg-sidebar-accent hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-foreground"
             >
               <Icon className="size-[18px]" />
-              <span className="flex-1">{label}</span>
-              {layer && (
-                <span className="rounded-md bg-sidebar-border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-                  {layer}
-                </span>
-              )}
+              {label}
             </Link>
           ))}
         </nav>
-        <div className="relative mt-auto rounded-2xl bg-sidebar-accent p-4 ring-1 ring-sidebar-border">
-          <Sparkles className="size-5 text-pro" />
-          <p className="mt-2 font-display text-base font-semibold">Ask Hendux AI</p>
-          <p className="mt-1 text-xs text-ink-muted">Classes, notices, past questions and topic explanations — with sources.</p>
-          <button
-            onClick={() => openAI()}
-            className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90"
-          >
-            Open assistant
-          </button>
-        </div>
       </aside>
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 lg:px-8">
+          <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3 lg:px-8">
             <Link to="/" className="flex items-center gap-2 lg:hidden" aria-label="Hendux home">
-              <HenduxMark className="size-8 text-base" />
+              <HenduxLogo className="h-8" />
               <span className="font-display text-lg font-bold">Hendux</span>
             </Link>
-            <ContextPill className="hidden sm:inline-flex" />
             <div className="ml-auto flex items-center gap-2">
-              <button className="relative grid size-9 place-items-center rounded-full bg-card ring-1 ring-border transition hover:ring-primary/40" aria-label="Notifications">
-                <Bell className="size-4" />
-                <span className="absolute right-2 top-2 size-2 rounded-full bg-urgent ring-2 ring-card" />
-              </button>
-              <Link to="/profile" className="grid size-9 place-items-center rounded-full bg-ink text-xs font-bold text-ink-foreground" aria-label="Profile">
-                PN
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="relative grid size-9 place-items-center rounded-full bg-card ring-1 ring-border transition hover:ring-primary/40" aria-label="Notifications">
+                    <Bell className="size-4" />
+                    <span className="absolute right-2 top-2 size-2 rounded-full bg-urgent ring-2 ring-card" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-72 p-2">
+                  <p className="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Notifications</p>
+                  {NOTIFICATIONS.map((n) => (
+                    <div key={n.title} className="rounded-lg px-2 py-2 hover:bg-muted">
+                      <p className="text-sm font-medium leading-snug">{n.title}</p>
+                      <p className="text-xs text-muted-foreground">{n.when}</p>
+                    </div>
+                  ))}
+                </PopoverContent>
+              </Popover>
+              <Link to="/profile" aria-label="Profile" className="rounded-full ring-1 ring-border transition hover:ring-primary/40">
+                <Avatar name={profile.name} photo={profile.photo} />
               </Link>
             </div>
           </div>
-          <div className="px-4 pb-3 sm:hidden">
-            <ContextPill className="w-full justify-start" />
-          </div>
         </header>
 
-        {previewing && (
-          <div className="border-b border-pro/30 bg-pro-soft">
-            <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2 text-xs font-medium text-pro-foreground lg:px-8">
-              <span>
-                Previewing {ctx.department} {ctx.level}L · {ctx.semester === 1 ? "1st" : "2nd"} Semester
-              </span>
-              <button onClick={() => setCtx(DEFAULT_CONTEXT)} className="ml-auto font-semibold underline underline-offset-2">
-                Back to my courses
-              </button>
-            </div>
-          </div>
-        )}
-
-        <main className="mx-auto max-w-5xl px-4 pb-36 pt-5 lg:px-8 lg:pb-20">{children}</main>
+        <main className="mx-auto max-w-3xl px-4 pb-36 pt-5 lg:px-8 lg:pb-20">{children}</main>
       </div>
 
-      {/* Floating AI button */}
-      <button
-        onClick={() => openAI()}
-        className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-primary-gradient py-3 pl-3 pr-4 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.03] lg:bottom-8 lg:right-8"
-        aria-label="Open Hendux AI assistant"
-      >
-        <span className="grid size-7 place-items-center rounded-full bg-primary-foreground/20 animate-pulse-ring">
-          <Sparkles className="size-4" />
-        </span>
-        Ask AI
-      </button>
+      {!onAIScreen && (
+        <button
+          onClick={() => openAI()}
+          className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-primary-gradient py-3 pl-3 pr-4 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.03] lg:bottom-8 lg:right-8"
+          aria-label="Open Hendux AI chat"
+        >
+          <span className="grid size-7 place-items-center rounded-full bg-primary-foreground/20 animate-pulse-ring">
+            <Sparkles className="size-4" />
+          </span>
+          Hendux AI
+        </button>
+      )}
 
       {/* Mobile bottom navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
         <div className="mx-auto grid max-w-lg grid-cols-5">
-          {NAV.map(({ to, label, Icon }) => (
+          {NAV.map(({ to, label, short, Icon }) => (
             <Link
-              key={label}
+              key={to}
               to={to}
+              aria-label={label}
               activeOptions={{ exact: to === "/" }}
               className="group flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition data-[status=active]:text-primary"
             >
               <span className="grid h-7 w-12 place-items-center rounded-full transition group-data-[status=active]:bg-primary-soft">
                 <Icon className="size-5" />
               </span>
-              {label}
+              {short}
             </Link>
           ))}
         </div>
       </nav>
 
-      <ContextSwitcher />
       <AIAssistant />
     </div>
   );
