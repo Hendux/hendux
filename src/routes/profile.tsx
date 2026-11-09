@@ -1,20 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Bell, Crown, GraduationCap, MessageCircle, Moon, ShieldCheck } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { ContextPill } from "@/components/hendux/AppShell";
-import { TierBadge } from "@/components/hendux/badges";
+import { useRef } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Camera, LogOut, X } from "lucide-react";
+import { Avatar } from "@/components/hendux/badges";
 import { useHendux } from "@/lib/hendux-store";
-import { STUDENT } from "@/lib/hendux-data";
+import { semesterLabel } from "@/lib/hendux-data";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "Profile · Hendux" },
-      { name: "description", content: "Your Hendux student profile, academic context, notification preferences and Pro membership." },
+      { name: "description", content: "Your Hendux profile, academic details and courses." },
       { property: "og:title", content: "Profile · Hendux" },
-      { property: "og:description", content: "Student profile, academic context and preferences on Hendux." },
+      { property: "og:description", content: "Your Hendux profile, academic details and courses." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,67 +20,59 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const { ctx } = useHendux();
-  const [prefs, setPrefs] = useState({ live: true, whatsapp: false, official: true, dark: false });
-  const toggle = (k: keyof typeof prefs) => (v: boolean) => {
-    setPrefs((p) => ({ ...p, [k]: v }));
-    if (k === "dark") document.documentElement.classList.toggle("dark", v);
-  };
-
-  const rows: { k: keyof typeof prefs; Icon: typeof Bell; title: string; desc: string }[] = [
-    { k: "live", Icon: Bell, title: "Live class updates", desc: "Venue changes, cancellations and delays" },
-    { k: "official", Icon: ShieldCheck, title: "Official notices only for alerts", desc: "Only push Registry, Senate and Dean notices" },
-    { k: "whatsapp", Icon: MessageCircle, title: "Daily WhatsApp digest", desc: "A 7 AM summary of your day" },
-    { k: "dark", Icon: Moon, title: "Dark mode", desc: "Easier on the eyes for late-night reading" },
-  ];
+  const { profile, ctx, courses, courseIds, setCourseIds, updateProfile, logOut } = useHendux();
+  const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="space-y-5">
-      <section className="flex flex-col items-start gap-4 rounded-3xl bg-card p-5 shadow-card ring-1 ring-border sm:flex-row sm:items-center">
-        <span className="grid size-16 place-items-center rounded-2xl bg-ink font-display text-xl font-bold text-ink-foreground">{STUDENT.initials}</span>
-        <div className="flex-1">
-          <h1 className="text-2xl font-extrabold">{STUDENT.firstName} {STUDENT.lastName}</h1>
-          <p className="text-sm text-muted-foreground">Matric No. {STUDENT.matric} · {ctx.department}, {ctx.level} Level</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-official-soft px-2.5 py-1 text-xs font-semibold text-official"><GraduationCap className="size-3.5" />Verified UNILAG student</span>
-          </div>
+      <section className="flex items-center gap-4 rounded-2xl bg-card p-5 shadow-card ring-1 ring-border">
+        <button onClick={() => fileRef.current?.click()} className="relative" aria-label="Change profile picture">
+          <Avatar name={profile.name} photo={profile.photo} className="size-16 text-lg" />
+          <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full bg-primary text-primary-foreground"><Camera className="size-3.5" /></span>
+        </button>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = () => updateProfile({ photo: String(reader.result) });
+          reader.readAsDataURL(f);
+        }} />
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-extrabold">{profile.name}</h1>
+          <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
         </div>
       </section>
 
       <section className="rounded-2xl bg-card p-5 ring-1 ring-border">
-        <h2 className="text-base font-bold">Academic context</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Tap to preview another level or department.</p>
-        <ContextPill className="mt-3" />
-      </section>
-
-      <section className="relative overflow-hidden rounded-2xl bg-pro-soft p-5 ring-1 ring-pro/40">
-        <Crown className="size-6 text-pro" />
-        <h2 className="mt-2 text-lg font-bold">Hendux Pro</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Verified formula sheets, exam summaries, full solutions and unlimited mock exams.</p>
-        <button onClick={() => toast("Hendux Pro checkout isn't part of this prototype")} className="mt-3 rounded-xl bg-pro px-4 py-2 text-sm font-bold text-pro-foreground">Upgrade · ₦1,500/month</button>
-      </section>
-
-      <section className="divide-y divide-border rounded-2xl bg-card ring-1 ring-border">
-        {rows.map(({ k, Icon, title, desc }) => (
-          <label key={k} className="flex cursor-pointer items-center gap-3 p-4">
-            <span className="grid size-9 place-items-center rounded-xl bg-muted"><Icon className="size-4" /></span>
-            <span className="flex-1">
-              <span className="block text-sm font-semibold">{title}</span>
-              <span className="block text-xs text-muted-foreground">{desc}</span>
-            </span>
-            <Switch checked={prefs[k]} onCheckedChange={toggle(k)} />
-          </label>
-        ))}
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold">Academic details</h2>
+          <button onClick={() => navigate({ to: "/setup" })} className="text-xs font-semibold text-primary">Edit</button>
+        </div>
+        <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          {[["University", ctx.university], ["Faculty", ctx.faculty], ["Department", ctx.department], ["Level", `${ctx.level} Level`], ["Semester", semesterLabel(ctx.semester)]].map(([k, v]) => (
+            <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd className="font-semibold">{v}</dd></div>
+          ))}
+        </dl>
       </section>
 
       <section className="rounded-2xl bg-card p-5 ring-1 ring-border">
-        <h2 className="text-base font-bold">How Hendux rates information</h2>
-        <ul className="mt-3 space-y-3 text-sm">
-          <li className="flex items-start gap-3"><TierBadge tier="official" /><span className="text-muted-foreground">Published by Senate, Registry, a Dean or a Department office.</span></li>
-          <li className="flex items-start gap-3"><TierBadge tier="verified" /><span className="text-muted-foreground">Checked and confirmed by the Hendux campus desk.</span></li>
-          <li className="flex items-start gap-3"><TierBadge tier="community" /><span className="text-muted-foreground">Shared by a course rep or student. Useful, but double-check.</span></li>
+        <h2 className="font-bold">My courses</h2>
+        <ul className="mt-3 space-y-2">
+          {courses.map((c) => (
+            <li key={c.id} className="flex items-center gap-3 rounded-xl bg-muted px-3 py-2 text-sm">
+              <span className="font-mono text-xs font-bold text-primary">{c.code}</span>
+              <span className="flex-1 truncate">{c.title}</span>
+              <button onClick={() => setCourseIds(courseIds.filter((id) => id !== c.id))} aria-label={`Remove ${c.code}`} className="text-muted-foreground hover:text-urgent"><X className="size-4" /></button>
+            </li>
+          ))}
         </ul>
+        <p className="mt-2 text-xs text-muted-foreground">To add courses, tap Edit above and pick them on the last step.</p>
       </section>
+
+      <button onClick={() => { logOut(); navigate({ to: "/auth" }); }} className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-urgent ring-1 ring-urgent/40">
+        <LogOut className="size-4" /> Log out
+      </button>
     </div>
   );
 }
