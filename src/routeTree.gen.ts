@@ -18,6 +18,8 @@ import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as AiIndexRouteImport } from './routes/ai.index'
 import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
 import { Route as ResourcesCourseIdRouteImport } from './routes/resources.$courseId'
+import { Route as AiExamPrepIndexRouteImport } from './routes/ai.exam-prep.index'
+import { Route as AiExamPrepCourseIdIndexRouteImport } from './routes/ai.exam-prep.$courseId.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +66,16 @@ const ResourcesCourseIdRoute = ResourcesCourseIdRouteImport.update({
   path: '/resources/$courseId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiExamPrepIndexRoute = AiExamPrepIndexRouteImport.update({
+  id: '/ai/exam-prep/',
+  path: '/ai/exam-prep/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiExamPrepCourseIdIndexRoute = AiExamPrepCourseIdIndexRouteImport.update({
+  id: '/ai/exam-prep/$courseId/',
+  path: '/ai/exam-prep/$courseId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
+  '/ai/exam-prep/': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId/': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +100,8 @@ export interface FileRoutesByTo {
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/ai': typeof AiIndexRoute
   '/resources': typeof ResourcesIndexRoute
+  '/ai/exam-prep': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +114,8 @@ export interface FileRoutesById {
   '/resources/$courseId': typeof ResourcesCourseIdRoute
   '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
+  '/ai/exam-prep/': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId/': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +129,8 @@ export interface FileRouteTypes {
     | '/resources/$courseId'
     | '/ai/'
     | '/resources/'
+    | '/ai/exam-prep/'
+    | '/ai/exam-prep/$courseId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +142,8 @@ export interface FileRouteTypes {
     | '/resources/$courseId'
     | '/ai'
     | '/resources'
+    | '/ai/exam-prep'
+    | '/ai/exam-prep/$courseId'
   id:
     | '__root__'
     | '/'
@@ -133,6 +155,8 @@ export interface FileRouteTypes {
     | '/resources/$courseId'
     | '/ai/'
     | '/resources/'
+    | '/ai/exam-prep/'
+    | '/ai/exam-prep/$courseId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +169,8 @@ export interface RootRouteChildren {
   ResourcesCourseIdRoute: typeof ResourcesCourseIdRoute
   AiIndexRoute: typeof AiIndexRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
+  AiExamPrepIndexRoute: typeof AiExamPrepIndexRoute
+  AiExamPrepCourseIdIndexRoute: typeof AiExamPrepCourseIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesCourseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai/exam-prep/': {
+      id: '/ai/exam-prep/'
+      path: '/ai/exam-prep'
+      fullPath: '/ai/exam-prep/'
+      preLoaderRoute: typeof AiExamPrepIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai/exam-prep/$courseId/': {
+      id: '/ai/exam-prep/$courseId/'
+      path: '/ai/exam-prep/$courseId'
+      fullPath: '/ai/exam-prep/$courseId/'
+      preLoaderRoute: typeof AiExamPrepCourseIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +265,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesCourseIdRoute: ResourcesCourseIdRoute,
   AiIndexRoute: AiIndexRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
+  AiExamPrepIndexRoute: AiExamPrepIndexRoute,
+  AiExamPrepCourseIdIndexRoute: AiExamPrepCourseIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
