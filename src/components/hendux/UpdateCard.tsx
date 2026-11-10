@@ -1,4 +1,4 @@
-import { CalendarPlus, Clock, MapPin, MessageCircle, Sparkles } from "lucide-react";
+import { CalendarPlus, Clock, MapPin, MessageCircle, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useHendux } from "@/lib/hendux-store";
 import { downloadCalendarEvent, shareToWhatsApp } from "@/lib/share";
@@ -52,9 +52,16 @@ export function UpdateCard({ u }: { u: CampusUpdate }) {
             <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-primary" />{u.when.venue}</span>
           </div>
         )}
-        <p className="mt-3 text-xs text-muted-foreground">
-          From <span className="font-semibold text-foreground">{u.source}</span>
-        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <span>
+            From <span className="font-semibold text-foreground">{u.source}</span>
+          </span>
+          {!showImage && (
+            <span className="inline-flex items-center gap-1">
+              <Users className="size-3" /> {u.audience}
+            </span>
+          )}
+        </div>
         <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border pt-3">
           <CardAction onClick={addToCalendar} Icon={CalendarPlus} label="Calendar" />
           <CardAction onClick={share} Icon={MessageCircle} label="WhatsApp" />

@@ -3,6 +3,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Bell, BookOpen, Home, Megaphone, Sparkles, User } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useHendux } from "@/lib/hendux-store";
+import { getUpdates } from "@/lib/hendux-data";
 import { Avatar, HenduxLogo } from "./badges";
 import { AIAssistant } from "./AIAssistant";
 
@@ -15,11 +16,6 @@ const NAV: { to: NavTo; label: string; short: string; Icon: typeof Home }[] = [
   { to: "/profile", label: "Profile", short: "Profile", Icon: User },
 ];
 
-const NOTIFICATIONS = [
-  { title: "CSC 305 lab moved to Computing Lab B", when: "25 min ago" },
-  { title: "Exam timetable release date confirmed", when: "2h ago" },
-  { title: "Lab Report 3 is due tonight at 11:59 PM", when: "Today" },
-];
 
 export function SplashMark() {
   return (
@@ -30,7 +26,8 @@ export function SplashMark() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { hydrated, signedIn, onboarded, openAI, profile } = useHendux();
+  const { hydrated, signedIn, onboarded, openAI, profile, ctx, courses } = useHendux();
+  const notifications = getUpdates(ctx, courses).slice(0, 3);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onAIScreen = pathname === "/ai" || pathname.startsWith("/ai/");
@@ -87,11 +84,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-72 p-2">
                   <p className="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Notifications</p>
-                  {NOTIFICATIONS.map((n) => (
-                    <div key={n.title} className="rounded-lg px-2 py-2 hover:bg-muted">
+                  {notifications.map((n) => (
+                    <Link key={n.id} to="/updates" className="block rounded-lg px-2 py-2 hover:bg-muted">
                       <p className="text-sm font-medium leading-snug">{n.title}</p>
-                      <p className="text-xs text-muted-foreground">{n.when}</p>
-                    </div>
+                      <p className="text-xs text-muted-foreground">{n.posted} · {n.source}</p>
+                    </Link>
                   ))}
                 </PopoverContent>
               </Popover>

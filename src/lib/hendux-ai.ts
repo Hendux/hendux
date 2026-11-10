@@ -1,6 +1,6 @@
 // Scripted sample answers for the Hendux AI prototype.
 import { DAY_NAMES, classesForDay, findFocusClass, formatTime } from "./timetable";
-import { DEMO_DAY, DEMO_MINUTES, UPDATES, getTimetable, type AcademicContext, type Course, type Tier } from "./hendux-data";
+import { DEMO_DAY, DEMO_MINUTES, getTimetable, getUpdates, type AcademicContext, type Course, type Tier } from "./hendux-data";
 
 export type AIMode = "campus" | "resource" | "study";
 export type Citation = { label: string; tier: Tier };
@@ -38,6 +38,22 @@ export function summarizeDoc(name: string): { title: string; bullets: string[] }
 export function answer(prompt: string, ctx: AcademicContext, courses: Course[]): AIReply {
   const p = prompt.toLowerCase();
   const level = `${ctx.department} ${ctx.level}L`;
+  const updates = getUpdates(ctx, courses);
+
+  if (p.startsWith("explain this passage")) {
+    const quote = prompt.replace(/^explain this passage[^:]*:\s*/i, "").replace(/^["“]|["”]$/g, "");
+    const from = /\(from ([^)]+)\)/i.exec(prompt)?.[1];
+    return {
+      mode: "study",
+      text: `In plain words: “${quote.slice(0, 140)}${quote.length > 140 ? "…" : ""}” is saying that the idea only works when each step follows from the one before it.`,
+      bullets: [
+        "Say it back in one sentence, without the textbook wording.",
+        "Link it to the Key Points for this topic: examiners often ask how this connects to the rest of the course.",
+        "Then take the topic quiz so your readiness reflects that you can recall it, not just read it.",
+      ],
+      citations: from ? [{ label: `${from} · Hendux Verified notes`, tier: "verified" }] : [],
+    };
+  }
 
   if (p.startsWith("summarize") || p.startsWith("summarise")) {
     const name = prompt.replace(/^summari[sz]e\s*/i, "").replace(/^["“]|["”]$/g, "") || "this document";
@@ -73,7 +89,7 @@ export function answer(prompt: string, ctx: AcademicContext, courses: Course[]):
   }
 
   if (p.includes("event")) {
-    const events = UPDATES.filter((u) => u.category === "event" && u.when);
+    const events = updates.filter((u) => u.category === "event" && u.when);
     return {
       mode: "campus",
       text: `Based on your profile (${level}), these upcoming events are a strong match:`,
@@ -125,7 +141,7 @@ export function answer(prompt: string, ctx: AcademicContext, courses: Course[]):
   }
 
   if (p.includes("tell me about") || p.includes("what is it about") || p.includes("what's it about")) {
-    const match = UPDATES.find((u) => p.includes(u.title.toLowerCase()));
+    const match = updates.find((u) => p.includes(u.title.toLowerCase()));
     if (match) {
       return {
         mode: "campus",

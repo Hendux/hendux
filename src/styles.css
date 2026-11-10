@@ -10,9 +10,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Hendux design system — academic, calm, credible.
- * Deep Navy ink, Electric Indigo accents, Emerald = official, Sky = Hendux-verified,
- * Gold = Pro content, Coral = urgency.
+ * Hendux design system, taken from the Hendux logo:
+ * Navy ink (graduation cap #0A1542), Hendux Blue (the "H" #2A5DDA) fading to Sky (#54B0F1).
+ * Emerald = Officials, Hendux Blue = Hendux Verified, Slate = Rep/Student,
+ * Gold = paid Exam Preparation, Coral = urgency.
  */
 
 @theme inline {
@@ -36,6 +37,8 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -52,6 +55,7 @@
   --color-ink: var(--ink);
   --color-ink-foreground: var(--ink-foreground);
   --color-ink-muted: var(--ink-muted);
+  --color-ink-line: var(--ink-line);
   --color-official: var(--official);
   --color-official-soft: var(--official-soft);
   --color-verified: var(--verified);
@@ -83,91 +87,103 @@
 
 :root {
   --radius: 0.875rem;
-  --background: oklch(0.975 0.006 270);
-  --foreground: oklch(0.208 0.04 265.8);
+  --background: oklch(0.976 0.008 255);
+  --foreground: oklch(0.221 0.06 267);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.208 0.04 265.8);
+  --card-foreground: oklch(0.221 0.06 267);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.208 0.04 265.8);
-  --primary: oklch(0.511 0.23 276.97);
-  --primary-foreground: oklch(0.985 0.005 270);
-  --primary-soft: oklch(0.94 0.04 276);
-  --secondary: oklch(0.955 0.01 270);
-  --secondary-foreground: oklch(0.208 0.04 265.8);
-  --muted: oklch(0.955 0.01 270);
-  --muted-foreground: oklch(0.52 0.03 265);
-  --accent: oklch(0.94 0.04 276);
-  --accent-foreground: oklch(0.38 0.18 277);
+  --popover-foreground: oklch(0.221 0.06 267);
+  /* Hendux Blue (#2A5DDA) */
+  --primary: oklch(0.522 0.199 263.9);
+  --primary-foreground: oklch(0.99 0.005 255);
+  --primary-soft: oklch(0.948 0.03 258);
+  /* Sky (#54B0F1) */
+  --sky: oklch(0.729 0.129 242.3);
+  --sky-soft: oklch(0.955 0.03 238);
+  --secondary: oklch(0.953 0.012 258);
+  --secondary-foreground: oklch(0.221 0.06 267);
+  --muted: oklch(0.955 0.01 258);
+  --muted-foreground: oklch(0.5 0.035 264);
+  --accent: oklch(0.948 0.03 258);
+  --accent-foreground: oklch(0.42 0.18 264);
   --destructive: oklch(0.6 0.21 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.915 0.012 270);
-  --input: oklch(0.915 0.012 270);
-  --ring: oklch(0.511 0.23 276.97);
+  --border: oklch(0.915 0.015 258);
+  --input: oklch(0.915 0.015 258);
+  --ring: oklch(0.522 0.199 263.9);
 
-  /* Deep navy surface (#0F172A) */
-  --ink: oklch(0.208 0.04 265.8);
-  --ink-foreground: oklch(0.97 0.01 270);
-  --ink-muted: oklch(0.72 0.03 265);
+  /* Navy ink from the graduation cap (#0A1542) */
+  --ink: oklch(0.221 0.086 267.9);
+  --ink-foreground: oklch(0.975 0.01 255);
+  --ink-muted: oklch(0.76 0.04 258);
+  --ink-line: oklch(1 0 0 / 10%);
 
-  --official: oklch(0.6 0.15 163);
-  --official-soft: oklch(0.95 0.05 163);
-  --verified: oklch(0.6 0.16 245);
-  --verified-soft: oklch(0.95 0.035 245);
-  --community: oklch(0.55 0.02 265);
-  --community-soft: oklch(0.95 0.006 265);
-  --pro: oklch(0.77 0.165 70);
-  --pro-soft: oklch(0.96 0.06 85);
-  --pro-foreground: oklch(0.3 0.08 60);
+  --official: oklch(0.58 0.14 162);
+  --official-soft: oklch(0.955 0.045 162);
+  --verified: oklch(0.522 0.199 263.9);
+  --verified-soft: oklch(0.948 0.03 258);
+  --community: oklch(0.5 0.03 264);
+  --community-soft: oklch(0.952 0.008 264);
+  --pro: oklch(0.769 0.165 70.1);
+  --pro-soft: oklch(0.965 0.055 85);
+  --pro-foreground: oklch(0.28 0.07 55);
   --urgent: oklch(0.62 0.2 28);
-  --urgent-soft: oklch(0.96 0.03 28);
-  --warning: oklch(0.7 0.16 65);
-  --warning-soft: oklch(0.96 0.05 80);
+  --urgent-soft: oklch(0.962 0.03 28);
+  --warning: oklch(0.66 0.15 62);
+  --warning-soft: oklch(0.962 0.05 80);
 
-  --gradient-ink: linear-gradient(140deg, oklch(0.208 0.04 265.8) 0%, oklch(0.27 0.09 275) 100%);
-  --gradient-primary: linear-gradient(135deg, oklch(0.511 0.23 276.97), oklch(0.58 0.2 290));
-  --shadow-card: 0 1px 2px oklch(0.208 0.04 265.8 / 5%), 0 8px 24px -12px oklch(0.208 0.04 265.8 / 12%);
-  --shadow-glow: 0 12px 32px -10px oklch(0.511 0.23 276.97 / 55%);
+  --gradient-ink:
+    radial-gradient(120% 90% at 100% 0%, oklch(0.522 0.199 263.9 / 45%) 0%, transparent 55%),
+    radial-gradient(80% 70% at 0% 100%, oklch(0.729 0.129 242.3 / 18%) 0%, transparent 60%),
+    linear-gradient(160deg, oklch(0.221 0.086 267.9) 0%, oklch(0.27 0.11 266) 100%);
+  --gradient-primary: linear-gradient(135deg, oklch(0.495 0.193 264.4) 0%, oklch(0.729 0.129 242.3) 100%);
+  --gradient-gold: linear-gradient(120deg, oklch(0.86 0.13 88) 0%, oklch(0.769 0.165 70.1) 45%, oklch(0.68 0.16 55) 100%);
+  --shadow-card: 0 1px 2px oklch(0.221 0.086 267.9 / 5%), 0 10px 28px -14px oklch(0.221 0.086 267.9 / 16%);
+  --shadow-glow: 0 14px 34px -12px oklch(0.522 0.199 263.9 / 55%);
+  --shadow-gold: 0 18px 40px -16px oklch(0.769 0.165 70.1 / 55%);
 
-  --chart-1: oklch(0.511 0.23 276.97);
-  --chart-2: oklch(0.6 0.15 163);
-  --chart-3: oklch(0.77 0.165 70);
-  --chart-4: oklch(0.6 0.16 245);
+  --chart-1: oklch(0.522 0.199 263.9);
+  --chart-2: oklch(0.58 0.14 162);
+  --chart-3: oklch(0.769 0.165 70.1);
+  --chart-4: oklch(0.68 0.13 242);
   --chart-5: oklch(0.62 0.2 28);
-  --sidebar: oklch(0.208 0.04 265.8);
-  --sidebar-foreground: oklch(0.97 0.01 270);
-  --sidebar-primary: oklch(0.511 0.23 276.97);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.27 0.05 268);
-  --sidebar-accent-foreground: oklch(0.97 0.01 270);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.511 0.23 276.97);
+  --sidebar: oklch(0.221 0.086 267.9);
+  --sidebar-foreground: oklch(0.975 0.01 255);
+  --sidebar-primary: oklch(0.522 0.199 263.9);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(1 0 0 / 9%);
+  --sidebar-accent-foreground: oklch(0.975 0.01 255);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.522 0.199 263.9);
 }
 
 .dark {
-  --background: oklch(0.17 0.035 265);
-  --foreground: oklch(0.97 0.01 270);
-  --card: oklch(0.22 0.04 266);
-  --card-foreground: oklch(0.97 0.01 270);
-  --popover: oklch(0.22 0.04 266);
-  --popover-foreground: oklch(0.97 0.01 270);
-  --primary: oklch(0.62 0.2 277);
-  --primary-foreground: oklch(0.985 0 0);
-  --primary-soft: oklch(0.3 0.08 277);
-  --secondary: oklch(0.27 0.04 266);
-  --secondary-foreground: oklch(0.97 0.01 270);
-  --muted: oklch(0.27 0.04 266);
-  --muted-foreground: oklch(0.72 0.03 265);
-  --accent: oklch(0.3 0.08 277);
-  --accent-foreground: oklch(0.9 0.05 277);
+  --background: oklch(0.17 0.05 267);
+  --foreground: oklch(0.97 0.01 255);
+  --card: oklch(0.22 0.06 267);
+  --card-foreground: oklch(0.97 0.01 255);
+  --popover: oklch(0.22 0.06 267);
+  --popover-foreground: oklch(0.97 0.01 255);
+  --primary: oklch(0.64 0.17 258);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-soft: oklch(0.3 0.09 264);
+  --sky-soft: oklch(0.3 0.06 240);
+  --secondary: oklch(0.27 0.05 267);
+  --secondary-foreground: oklch(0.97 0.01 255);
+  --muted: oklch(0.27 0.05 267);
+  --muted-foreground: oklch(0.74 0.03 258);
+  --accent: oklch(0.3 0.09 264);
+  --accent-foreground: oklch(0.9 0.05 258);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.62 0.2 277);
-  --ink: oklch(0.13 0.03 265);
-  --official-soft: oklch(0.3 0.06 163);
-  --verified-soft: oklch(0.3 0.06 245);
-  --community-soft: oklch(0.3 0.01 265);
+  --ring: oklch(0.64 0.17 258);
+  --ink: oklch(0.14 0.05 267);
+  --verified: oklch(0.7 0.14 255);
+  --official-soft: oklch(0.3 0.06 162);
+  --verified-soft: oklch(0.3 0.09 264);
+  --community-soft: oklch(0.3 0.02 264);
   --pro-soft: oklch(0.32 0.06 75);
-  --pro-foreground: oklch(0.92 0.08 85);
+  --pro-foreground: oklch(0.25 0.07 55);
   --urgent-soft: oklch(0.3 0.07 28);
   --warning-soft: oklch(0.32 0.06 75);
 }
@@ -183,6 +199,28 @@
 
 @utility bg-primary-gradient {
   background-image: var(--gradient-primary);
+}
+
+@utility bg-gold-gradient {
+  background-image: var(--gradient-gold);
+}
+
+@utility text-gold-gradient {
+  background-image: var(--gradient-gold);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility text-sky-gradient {
+  background-image: linear-gradient(100deg, var(--ink-foreground) 0%, var(--sky) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-gold {
+  box-shadow: var(--shadow-gold);
 }
 
 @utility shadow-card {
@@ -227,13 +265,51 @@
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 oklch(0.511 0.23 276.97 / 45%);
+    box-shadow: 0 0 0 0 oklch(0.522 0.199 263.9 / 45%);
   }
   100% {
-    box-shadow: 0 0 0 10px oklch(0.511 0.23 276.97 / 0%);
+    box-shadow: 0 0 0 10px oklch(0.522 0.199 263.9 / 0%);
   }
 }
 
 @utility animate-pulse-ring {
   animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* A slow sheen that sweeps across the gold Exam Preparation surfaces. */
+@keyframes sheen {
+  0%,
+  60% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}
+
+@utility animate-sheen {
+  animation: sheen 4.5s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheen,
+  .animate-rise,
+  .animate-pulse-ring {
+    animation: none;
+  }
 }

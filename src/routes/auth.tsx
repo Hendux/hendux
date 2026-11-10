@@ -10,9 +10,9 @@ type View = "login" | "signup" | "forgot" | "verify" | "reset";
 const VIEWS: View[] = ["login", "signup", "forgot", "verify", "reset"];
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>): { view?: View; email?: string } => ({
-    view: VIEWS.includes(s.view as View) ? (s.view as View) : undefined,
-    email: typeof s.email === "string" ? s.email : undefined,
+  validateSearch: (s: Record<string, unknown>): { view?: View | undefined; email?: string | undefined } => ({
+    view: VIEWS.includes(s["view"] as View) ? (s["view"] as View) : undefined,
+    email: typeof s["email"] === "string" ? s["email"] : undefined,
   }),
   head: () => ({
     meta: [
