@@ -9,12 +9,13 @@ export const TIER_META: Record<Tier, { label: string; desc: string; className: s
   community: { label: "Rep/Student", desc: "Posted by course reps and students.", className: "bg-community-soft text-community ring-community/25", Icon: Users },
 };
 
-export function TierBadge({ tier, className }: { tier: Tier; className?: string }) {
+export function TierBadge({ tier, className, compact }: { tier: Tier; className?: string; compact?: boolean }) {
   const meta = TIER_META[tier];
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset",
+        "inline-flex shrink-0 items-center gap-1 rounded-full font-semibold ring-1 ring-inset",
+        compact ? "px-1.5 py-px text-[10px]" : "px-2 py-0.5 text-[11px]",
         meta.className,
         className,
       )}
