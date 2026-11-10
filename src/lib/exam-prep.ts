@@ -135,9 +135,19 @@ function genericTopics(course: Course): Omit<Topic, "seed" | "weight">[] {
   }));
 }
 
+/** A course the student has never practised: every topic reads "Not started". */
+export const FRESH: TopicSignals = { mock: null, coverage: 0, consistency: null, quizzes: [], daysSinceReview: 0 };
+
 export function getTopics(course: Course): Topic[] {
-  const base = course.id === "csc-301" ? CSC301 : genericTopics(course);
-  return base.map((t, i) => ({ ...t, weight: WEIGHTS[i % WEIGHTS.length]!, seed: SEEDS[i % SEEDS.length]! }));
+  // The sample student has been studying CSC 301 for weeks; every other course starts fresh.
+  const sample = course.id === "csc-301";
+  const base = sample ? CSC301 : genericTopics(course);
+  return base.map((t, i) => ({ ...t, weight: WEIGHTS[i % WEIGHTS.length]!, seed: sample ? SEEDS[i % SEEDS.length]! : FRESH }));
+}
+
+/** How many minutes a timed mock gets: 1.5 minutes a question, rounded up. */
+export function mockMinutes(questions: number): number {
+  return Math.ceil(questions * 1.5);
 }
 
 export function findTopic(course: Course, topicId: string): Topic | null {
