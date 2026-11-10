@@ -116,10 +116,10 @@ function courseFor(doc: SourceDoc, courses: Course[]): Course | null {
   return (doc.courseId ? findCourse(doc.courseId) : null) ?? courses[0] ?? null;
 }
 
-function SummarizeTool({ onSwitch }: { onSwitch: (tool: AITool, doc: SourceDoc) => void; initial?: SourceDoc | null }) {
+function SummarizeTool({ onSwitch, onClose }: { onSwitch: (tool: AITool, doc: SourceDoc) => void; onClose: () => void }) {
   const [doc, setDoc] = useState<SourceDoc | null>(null);
   const [ready, setReady] = useState(false);
-  const { openAI, closeAI } = useHendux();
+  const { openAI } = useHendux();
   const done = useMemo(() => () => setReady(true), []);
   if (!doc) return <DocPicker onPick={(d) => { setDoc(d); setReady(false); }} cta="We'll pull out the main ideas in seconds" />;
   if (!ready) return <Reading doc={doc} onDone={done} />;
@@ -150,7 +150,7 @@ function SummarizeTool({ onSwitch }: { onSwitch: (tool: AITool, doc: SourceDoc) 
         <button onClick={() => setDoc(null)} className="text-xs font-semibold text-muted-foreground hover:text-foreground">Summarize another PDF</button>
         <button
           onClick={() => {
-            closeAI();
+            onClose();
             openAI(`Summarize "${doc.title}"`);
           }}
           className="inline-flex items-center gap-1 text-xs font-bold text-primary"
@@ -283,7 +283,7 @@ function FlashcardsTool({ initial }: { initial?: SourceDoc | null }) {
 export function AIToolDialog({ tool, onClose }: { tool: AITool | null; onClose: () => void }) {
   const [active, setActive] = useState<{ tool: AITool; doc: SourceDoc | null; key: number } | null>(null);
   useEffect(() => {
-    if (tool) setActive({ tool, doc: null, key: Date.now() });
+    setActive(tool ? { tool, doc: null, key: Date.now() } : null);
   }, [tool]);
   const current = tool ? (active?.tool ?? tool) : null;
   const meta = current ? TOOL_META[current] : null;
@@ -304,7 +304,7 @@ export function AIToolDialog({ tool, onClose }: { tool: AITool | null; onClose: 
                 </div>
               </div>
             </DialogHeader>
-            {current === "summarize" && <SummarizeTool key={active?.key} onSwitch={(t, d) => setActive({ tool: t, doc: d, key: Date.now() })} />}
+            {current === "summarize" && <SummarizeTool key={active?.key} onClose={onClose} onSwitch={(t, d) => setActive({ tool: t, doc: d, key: Date.now() })} />}
             {current === "quiz" && <QuizTool key={active?.key} initial={active?.doc ?? null} />}
             {current === "flashcards" && <FlashcardsTool key={active?.key} initial={active?.doc ?? null} />}
           </>

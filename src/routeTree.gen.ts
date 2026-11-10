@@ -15,6 +15,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as AiIndexRouteImport } from './routes/ai.index'
 import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
 import { Route as ResourcesCourseIdRouteImport } from './routes/resources.$courseId'
 
@@ -48,6 +49,11 @@ const WelcomeRoute = WelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiIndexRoute = AiIndexRouteImport.update({
+  id: '/ai/',
+  path: '/ai/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
   id: '/resources/',
   path: '/resources/',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/updates': typeof UpdatesRoute
   '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
+  '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/updates': typeof UpdatesRoute
   '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
+  '/ai': typeof AiIndexRoute
   '/resources': typeof ResourcesIndexRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/updates': typeof UpdatesRoute
   '/welcome': typeof WelcomeRoute
   '/resources/$courseId': typeof ResourcesCourseIdRoute
+  '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/welcome'
     | '/resources/$courseId'
+    | '/ai/'
     | '/resources/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/welcome'
     | '/resources/$courseId'
+    | '/ai'
     | '/resources'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/welcome'
     | '/resources/$courseId'
+    | '/ai/'
     | '/resources/'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   UpdatesRoute: typeof UpdatesRoute
   WelcomeRoute: typeof WelcomeRoute
   ResourcesCourseIdRoute: typeof ResourcesCourseIdRoute
+  AiIndexRoute: typeof AiIndexRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
 }
 
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai/': {
+      id: '/ai/'
+      path: '/ai'
+      fullPath: '/ai/'
+      preLoaderRoute: typeof AiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources/': {
       id: '/resources/'
       path: '/resources'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpdatesRoute: UpdatesRoute,
   WelcomeRoute: WelcomeRoute,
   ResourcesCourseIdRoute: ResourcesCourseIdRoute,
+  AiIndexRoute: AiIndexRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
 }
 export const routeTree = rootRouteImport
