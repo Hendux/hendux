@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { DEFAULT_CONTEXT, DEMO_USER, findCourse, getCatalog, type AcademicContext, type CalendarEntry, type Course } from "./hendux-data";
+import { DEFAULT_CONTEXT, DEMO_USER, SAMPLE_FLASHCARDS, findCourse, getCatalog, type AcademicContext, type CalendarEntry, type Course } from "./hendux-data";
 import type { Topic } from "./exam-prep";
 import type { TopicSignals } from "./readiness";
 
 export type Profile = { name: string; email: string; photo?: string | undefined };
+export type Flashcard = { id: string; front: string; back: string; deck: string };
 
 type Persisted = {
   signedIn: boolean;
@@ -15,9 +16,12 @@ type Persisted = {
   signals: Record<string, TopicSignals>;
   reminders: { id: string; date: string; title: string; detail?: string | undefined }[];
   chats: { id: string; title: string; when: string; prompt: string }[];
+  flashcards: Flashcard[];
+  /** Notes sections and Key Points the student has marked as gone through. */
+  readMarks: string[];
 };
 
-const STORAGE_KEY = "hendux:v2";
+const STORAGE_KEY = "hendux:v3";
 
 const defaultCourseIds = () => getCatalog(DEFAULT_CONTEXT.department, DEFAULT_CONTEXT.level, DEFAULT_CONTEXT.semester).map((c) => c.id);
 
@@ -27,10 +31,13 @@ const INITIAL: Persisted = {
   profile: { ...DEMO_USER },
   ctx: DEFAULT_CONTEXT,
   courseIds: defaultCourseIds(),
-  unlocked: [],
+  // The sample student has already unlocked Exam Preparation for one course.
+  unlocked: ["csc-301"],
   signals: {},
   reminders: [],
   chats: [],
+  flashcards: SAMPLE_FLASHCARDS.map((c, i) => ({ id: `fc-${i}`, deck: "CSC 301 · Virtual Memory", ...c })),
+  readMarks: [],
 };
 
 type HenduxState = Persisted & {
@@ -49,6 +56,9 @@ type HenduxState = Persisted & {
   topicSignals: (courseId: string, topic: Topic) => TopicSignals;
   setTopicSignals: (courseId: string, topicId: string, s: TopicSignals) => void;
   addChat: (title: string) => void;
+  addFlashcards: (cards: Omit<Flashcard, "id">[]) => void;
+  removeFlashcard: (id: string) => void;
+  markRead: (key: string) => void;
   aiOpen: boolean;
   aiSeed: { text: string; nonce: number } | null;
   openAI: (prompt?: string) => void;
@@ -106,7 +116,7 @@ export function HenduxProvider({ children }: { children: ReactNode }) {
           onboarded: true,
           profile: email && !s.onboarded ? { ...s.profile, email } : s.profile,
         })),
-      startSignUp: (profile) => patch({ signedIn: true, onboarded: false, profile, ctx: DEFAULT_CONTEXT, courseIds: [], unlocked: [], signals: {}, reminders: [], chats: [] }),
+      startSignUp: (profile) => patch({ signedIn: true, onboarded: false, profile, ctx: DEFAULT_CONTEXT, courseIds: [], unlocked: [], signals: {}, reminders: [], chats: [], flashcards: [], readMarks: [] }),
       completeSetup: (ctx, courseIds) => patch({ ctx, courseIds, onboarded: true }),
       logOut: () => patch({ signedIn: false }),
       updateProfile: (p) => patch((s) => ({ profile: { ...s.profile, ...p } })),
@@ -116,7 +126,10 @@ export function HenduxProvider({ children }: { children: ReactNode }) {
       unlockCourse: (id) => patch((s) => ({ unlocked: s.unlocked.includes(id) ? s.unlocked : [...s.unlocked, id] })),
       topicSignals: (courseId, topic) => state.signals[`${courseId}:${topic.id}`] ?? topic.seed,
       setTopicSignals: (courseId, topicId, sig) => patch((s) => ({ signals: { ...s.signals, [`${courseId}:${topicId}`]: sig } })),
-      addChat: (title) => patch((s) => ({ chats: [{ id: `ch-${Date.now()}`, title, when: "Just now", prompt: title }, ...s.chats].slice(0, 10) })),
+      addChat: (title) => patch((s) => ({ chats: [{ id: `ch-${Date.now()}`, title, when: "Just now", prompt: title }, ...s.chats.filter((c) => c.prompt !== title)].slice(0, 10) })),
+      addFlashcards: (cards) => patch((s) => ({ flashcards: [...cards.map((c, i) => ({ ...c, id: `fc-${Date.now()}-${i}` })), ...s.flashcards] })),
+      removeFlashcard: (id) => patch((s) => ({ flashcards: s.flashcards.filter((c) => c.id !== id) })),
+      markRead: (key) => patch((s) => ({ readMarks: s.readMarks.includes(key) ? s.readMarks : [...s.readMarks, key] })),
       aiOpen,
       aiSeed,
       openAI,
