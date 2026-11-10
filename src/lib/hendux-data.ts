@@ -6,7 +6,7 @@ import aiLectureImg from "@/assets/event-ai-lecture.jpg";
 import examHallImg from "@/assets/notice-exam-hall.jpg";
 import facultyImg from "@/assets/notice-faculty-building.jpg";
 import theatreImg from "@/assets/notice-lecture-theatre.jpg";
-import type { ClassSlot, LiveStatus } from "./timetable";
+import { DAY_NAMES, formatTime, type ClassSlot, type LiveStatus } from "./timetable";
 
 // ---------- Demo clock ----------
 // The prototype runs on a fixed "now" so the experience is the same at any hour.
@@ -263,7 +263,7 @@ type TemplateSlot = { day: number; start: string; end: string; c: number; kind: 
 const TEMPLATE: TemplateSlot[] = [
   { day: 0, start: "08:00", end: "10:00", c: 0, kind: "Lecture" },
   {
-    day: 0, start: "10:00", end: "12:00", c: 1, kind: "Lab", venue: "Computing Lab B",
+    day: 0, start: "10:00", end: "12:00", c: 1, kind: "Lab", venue: "Lab B, ground floor",
     status: { type: "moved", text: "Moved to Lab B", source: "Course Rep · 25 min ago" },
   },
   { day: 0, start: "13:00", end: "14:00", c: 2, kind: "Lecture" },
@@ -328,7 +328,7 @@ export function getExams(courses: Course[]): Exam[] {
 
 // ---------- Academic calendar ----------
 export type CalendarKind = "holiday" | "deadline" | "event" | "reminder" | "exam";
-export type CalendarEntry = { id: string; date: Date; title: string; kind: CalendarKind; detail?: string };
+export type CalendarEntry = { id: string; date: Date; title: string; kind: CalendarKind; detail?: string | undefined };
 
 export const ACADEMIC_CALENDAR: CalendarEntry[] = [
   { id: "c1", date: new Date(2026, 10, 9), title: "CSC 305 Lab Report 3 due", kind: "deadline", detail: "Submit on the department portal by 11:59 PM" },
@@ -346,7 +346,10 @@ export const ACADEMIC_CALENDAR: CalendarEntry[] = [
 
 // ---------- Campus updates ----------
 export type Tier = "official" | "verified" | "community";
+/** Academic = university-wide. Faculty/Department = the student's own faculty, department, level or courses. */
 export type UpdateCategory = "academic" | "faculty" | "event";
+/** Who a post is meant for. Faculty/Department posts are always scoped to the student. */
+export type UpdateScope = "university" | "faculty" | "department" | "level" | "course";
 export type CampusUpdate = {
   id: string;
   title: string;
@@ -354,106 +357,157 @@ export type CampusUpdate = {
   source: string;
   tier: Tier;
   category: UpdateCategory;
+  scope: UpdateScope;
   posted: string;
   audience: string;
   image?: string;
   when?: { label: string; venue: string; start: Date; end: Date };
 };
 
-export const UPDATES: CampusUpdate[] = [
-  {
-    id: "n1",
-    title: "First Semester examination timetable: release date confirmed",
-    body: "The Registry will publish the approved first semester examination timetable on Monday 23 November. Hall allocations and seat ranges will appear in each student's Hendux calendar automatically.",
+/**
+ * The campus feed for one student. University-wide posts are the same for everyone;
+ * faculty, department, level and course posts are built from the student's own
+ * academic details and timetable, so they always match who is reading.
+ */
+export function getUpdates(ctx: AcademicContext, courses: Course[]): CampusUpdate[] {
+  const prefix = findDepartment(ctx.department)?.department.prefix ?? ctx.departmentShort.toUpperCase();
+  const deptLevel = `${ctx.department} · ${ctx.level}L`;
+  const slots = getTimetable(courses);
+  const moved = slots.find((s) => s.status?.type === "moved");
+  const cancelled = slots.find((s) => s.status?.type === "cancelled");
+  const studyCourse = courses[2] ?? courses[0];
+  const isComputing = prefix === "CSC";
+  const out: CampusUpdate[] = [];
+
+  if (moved) {
+    out.push({
+      id: "dept-moved",
+      title: `${moved.code} ${moved.kind.toLowerCase()} moved to ${moved.venue.split(",")[0]} today`,
+      body: `Today's ${moved.title} ${moved.kind.toLowerCase()} at ${formatTime(moved.start)} holds in ${moved.venue} because of a power fault in the usual room. Bring last week's work.`,
+      source: `Chidinma O. · ${prefix} ${ctx.level}L Course Rep`,
+      tier: "community",
+      category: "faculty",
+      scope: "level",
+      posted: "25 min ago",
+      audience: deptLevel,
+    });
+  }
+
+  out.push({
+    id: "uni-exam-timetable",
+    title: `${semesterLabel(ctx.semester, true)} examination timetable: release date confirmed`,
+    body: "The Registry will publish the approved examination timetable on Monday 23 November. Hall allocations and seat ranges will appear in each student's Hendux calendar automatically.",
     source: "Office of the Registrar",
     tier: "official",
     category: "academic",
+    scope: "university",
     posted: "2h ago",
     audience: "All students",
     image: examHallImg,
     when: { label: "Mon 23 Nov, 9:00 AM", venue: "Online · Registry portal", start: new Date(2026, 10, 23, 9, 0), end: new Date(2026, 10, 23, 10, 0) },
-  },
-  {
-    id: "n2",
-    title: "CSC 305 lab moved to Computing Lab B today",
-    body: "Today's Database Systems practical holds in Computing Lab B (ground floor) because of a power fault in Lab A. Bring your ER diagrams from last week.",
-    source: "Chidinma O. · CSC 300L Course Rep",
-    tier: "community",
-    category: "faculty",
-    posted: "25 min ago",
-    audience: "CSC 300L",
-  },
-  {
-    id: "e1",
-    title: "Hendux Campus Hackathon 2026",
-    body: "48 hours, mentors from leading tech companies and prizes for the top three teams. Teams of 2–4. Build tools that make student life easier.",
-    source: "Hendux Administration",
-    tier: "verified",
-    category: "event",
-    posted: "Yesterday",
-    audience: "All faculties",
-    image: hackathonImg,
-    when: { label: "Fri 20 Nov, 6:00 PM", venue: "Engineering Hall", start: new Date(2026, 10, 20, 18, 0), end: new Date(2026, 10, 22, 18, 0) },
-  },
-  {
-    id: "n3",
-    title: "Dean's notice: Faculty of Science course-form deadline",
-    body: "All Faculty of Science students must submit signed course forms to their department office before Friday. Late forms will not be processed for this semester.",
-    source: "Office of the Dean, Faculty of Science",
+  });
+
+  if (cancelled) {
+    out.push({
+      id: "dept-cancelled",
+      title: `${cancelled.code} ${DAY_NAMES[cancelled.day]} ${cancelled.kind.toLowerCase()} cancelled`,
+      body: `${cancelled.lecturer}'s ${cancelled.title} ${cancelled.kind.toLowerCase()} on ${DAY_NAMES[cancelled.day]} at ${formatTime(cancelled.start)} is cancelled. A make-up class will be announced. Confirmed with the Department of ${ctx.department} office.`,
+      source: "Hendux Administration",
+      tier: "verified",
+      category: "faculty",
+      scope: "level",
+      posted: "3h ago",
+      audience: deptLevel,
+      image: theatreImg,
+    });
+  }
+
+  out.push({
+    id: "fac-course-forms",
+    title: `Dean's notice: ${ctx.faculty} course-form deadline`,
+    body: `All ${ctx.faculty} students must submit signed course forms to their department office before Friday. Late forms will not be processed this semester.`,
+    source: `Office of the Dean, ${ctx.faculty}`,
     tier: "official",
     category: "faculty",
+    scope: "faculty",
     posted: "5h ago",
-    audience: "Faculty of Science",
+    audience: ctx.faculty,
     image: facultyImg,
     when: { label: "Fri 13 Nov, 4:00 PM", venue: "Department offices", start: new Date(2026, 10, 13, 16, 0), end: new Date(2026, 10, 13, 17, 0) },
-  },
-  {
-    id: "e2",
-    title: "Tech & Data Career Fair",
-    body: "Meet 30+ employers hiring interns and graduates in software, data and product. Bring printed CVs. Internship placements available for 300L.",
-    source: "Student Union Government",
-    tier: "official",
-    category: "event",
-    posted: "2 days ago",
-    audience: "300L & 400L",
-    image: careerFairImg,
-    when: { label: "Wed 18 Nov, 10:00 AM", venue: "Multipurpose Hall", start: new Date(2026, 10, 18, 10, 0), end: new Date(2026, 10, 18, 15, 0) },
-  },
-  {
-    id: "n4",
-    title: "CSC 309 Tuesday lecture cancelled",
-    body: "Dr. Haddad's Compiler Construction lecture on Tuesday is cancelled. A make-up class will be announced. Confirmed with the department office.",
-    source: "Hendux Administration",
-    tier: "verified",
-    category: "academic",
-    posted: "3h ago",
-    audience: "CSC 300L",
-    image: theatreImg,
-  },
-  {
-    id: "e3",
-    title: "Public Lecture: Responsible AI in Healthcare",
-    body: "The Department of Computer Science hosts a guest researcher on building safe, fair AI for clinics. Q&A and networking after.",
-    source: "Department of Computer Science",
-    tier: "official",
-    category: "event",
-    posted: "3 days ago",
-    audience: "All Science students",
-    image: aiLectureImg,
-    when: { label: "Thu 12 Nov, 2:00 PM", venue: "Lecture Theatre 1", start: new Date(2026, 10, 12, 14, 0), end: new Date(2026, 10, 12, 16, 0) },
-  },
-  {
-    id: "n5",
-    title: "Study group for MTH 311 this Thursday",
-    body: "We're revising Newton–Raphson and interpolation before the test. Faculty Library, 2nd floor, 4 PM. Everyone welcome.",
-    source: "Tunde A. · Student",
-    tier: "community",
-    category: "academic",
-    posted: "6h ago",
-    audience: "MTH 311 students",
-    when: { label: "Thu 12 Nov, 4:00 PM", venue: "Faculty Library", start: new Date(2026, 10, 12, 16, 0), end: new Date(2026, 10, 12, 18, 0) },
-  },
-];
+  });
+
+  if (studyCourse) {
+    out.push({
+      id: "course-study-group",
+      title: `Study group for ${studyCourse.code} this Thursday`,
+      body: `We're revising the hardest parts of ${studyCourse.title} before the test. Faculty Library, 2nd floor, 4 PM. Everyone in the class is welcome.`,
+      source: "Tunde A. · Student",
+      tier: "community",
+      category: "faculty",
+      scope: "course",
+      posted: "6h ago",
+      audience: `${studyCourse.code} students`,
+      when: { label: "Thu 12 Nov, 4:00 PM", venue: "Faculty Library", start: new Date(2026, 10, 12, 16, 0), end: new Date(2026, 10, 12, 18, 0) },
+    });
+  }
+
+  out.push(
+    {
+      id: "uni-hackathon",
+      title: "Hendux Campus Hackathon 2026",
+      body: "48 hours, mentors from leading tech companies and prizes for the top three teams. Teams of 2–4 from any faculty. Build tools that make student life easier.",
+      source: "Hendux Administration",
+      tier: "verified",
+      category: "event",
+      scope: "university",
+      posted: "Yesterday",
+      audience: "All faculties",
+      image: hackathonImg,
+      when: { label: "Fri 20 Nov, 6:00 PM", venue: "Engineering Hall", start: new Date(2026, 10, 20, 18, 0), end: new Date(2026, 10, 22, 18, 0) },
+    },
+    {
+      id: "uni-library-hours",
+      title: "Main Library opens 24 hours from 23 November",
+      body: "The Main Library will stay open around the clock through the examination period. Bring your student ID after 10 PM.",
+      source: "Hendux Administration",
+      tier: "verified",
+      category: "academic",
+      scope: "university",
+      posted: "Yesterday",
+      audience: "All students",
+    },
+    {
+      id: "uni-career-fair",
+      title: "Careers & Internships Fair",
+      body: "Meet 30+ employers hiring interns and graduates across every faculty. Bring printed CVs. Internship placements open to 300 Level and above.",
+      source: "Student Union Government",
+      tier: "official",
+      category: "event",
+      scope: "university",
+      posted: "2 days ago",
+      audience: "All levels",
+      image: careerFairImg,
+      when: { label: "Wed 18 Nov, 10:00 AM", venue: "Multipurpose Hall", start: new Date(2026, 10, 18, 10, 0), end: new Date(2026, 10, 18, 15, 0) },
+    },
+    {
+      id: "dept-seminar",
+      title: isComputing ? "Public Lecture: Responsible AI in Healthcare" : `${ctx.department} seminar: research & careers`,
+      body: isComputing
+        ? "The Department of Computer Science hosts a guest researcher on building safe, fair AI for clinics. Q&A and networking after."
+        : `The Department of ${ctx.department} hosts alumni and researchers on where the field is heading. Q&A and networking after.`,
+      source: `Department of ${ctx.department}`,
+      tier: "official",
+      category: "event",
+      scope: "department",
+      posted: "3 days ago",
+      audience: `${ctx.department} students`,
+      image: isComputing ? aiLectureImg : theatreImg,
+      when: { label: "Thu 12 Nov, 2:00 PM", venue: "Lecture Theatre 1", start: new Date(2026, 10, 12, 14, 0), end: new Date(2026, 10, 12, 16, 0) },
+    },
+  );
+
+  return out;
+}
 
 // ---------- Resources ----------
 export type PastQuestion = { id: string; year: number; title: string; questions: number; hasSolution: boolean };
