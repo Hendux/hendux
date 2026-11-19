@@ -8,6 +8,7 @@
 - [ ] Campus Updates (Screen 9)
 - [ ] Resources: timetable → academic calendar, my courses, course page (Screen 10)
 - [ ] Hendux AI: summarize, quiz, flashcards, previous chats, Exam Preparation flow + readiness (Screen 11)
+- [ ] Finish Exam prep (topic page)
 - [ ] Profile (Screen 12, suggested content)
 - [ ] Bottom nav: Home, Campus Updates, Resources, Hendux AI, Profile; floating AI hidden on Hendux AI
 - [ ] Readiness rules tests

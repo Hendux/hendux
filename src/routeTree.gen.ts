@@ -20,6 +20,7 @@ import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
 import { Route as ResourcesCourseIdRouteImport } from './routes/resources.$courseId'
 import { Route as AiExamPrepIndexRouteImport } from './routes/ai.exam-prep.index'
 import { Route as AiExamPrepCourseIdIndexRouteImport } from './routes/ai.exam-prep.$courseId.index'
+import { Route as AiExamPrepCourseIdTopicIdRouteImport } from './routes/ai.exam-prep.$courseId.$topicId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,12 @@ const AiExamPrepCourseIdIndexRoute = AiExamPrepCourseIdIndexRouteImport.update({
   path: '/ai/exam-prep/$courseId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiExamPrepCourseIdTopicIdRoute =
+  AiExamPrepCourseIdTopicIdRouteImport.update({
+    id: '/ai/exam-prep/$courseId/$topicId',
+    path: '/ai/exam-prep/$courseId/$topicId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/ai/exam-prep/': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId/$topicId': typeof AiExamPrepCourseIdTopicIdRoute
   '/ai/exam-prep/$courseId/': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +109,7 @@ export interface FileRoutesByTo {
   '/ai': typeof AiIndexRoute
   '/resources': typeof ResourcesIndexRoute
   '/ai/exam-prep': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId/$topicId': typeof AiExamPrepCourseIdTopicIdRoute
   '/ai/exam-prep/$courseId': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRoutesById {
@@ -115,6 +124,7 @@ export interface FileRoutesById {
   '/ai/': typeof AiIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/ai/exam-prep/': typeof AiExamPrepIndexRoute
+  '/ai/exam-prep/$courseId/$topicId': typeof AiExamPrepCourseIdTopicIdRoute
   '/ai/exam-prep/$courseId/': typeof AiExamPrepCourseIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/ai/'
     | '/resources/'
     | '/ai/exam-prep/'
+    | '/ai/exam-prep/$courseId/$topicId'
     | '/ai/exam-prep/$courseId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/resources'
     | '/ai/exam-prep'
+    | '/ai/exam-prep/$courseId/$topicId'
     | '/ai/exam-prep/$courseId'
   id:
     | '__root__'
@@ -156,6 +168,7 @@ export interface FileRouteTypes {
     | '/ai/'
     | '/resources/'
     | '/ai/exam-prep/'
+    | '/ai/exam-prep/$courseId/$topicId'
     | '/ai/exam-prep/$courseId/'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +183,7 @@ export interface RootRouteChildren {
   AiIndexRoute: typeof AiIndexRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
   AiExamPrepIndexRoute: typeof AiExamPrepIndexRoute
+  AiExamPrepCourseIdTopicIdRoute: typeof AiExamPrepCourseIdTopicIdRoute
   AiExamPrepCourseIdIndexRoute: typeof AiExamPrepCourseIdIndexRoute
 }
 
@@ -252,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiExamPrepCourseIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai/exam-prep/$courseId/$topicId': {
+      id: '/ai/exam-prep/$courseId/$topicId'
+      path: '/ai/exam-prep/$courseId/$topicId'
+      fullPath: '/ai/exam-prep/$courseId/$topicId'
+      preLoaderRoute: typeof AiExamPrepCourseIdTopicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -266,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiIndexRoute: AiIndexRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
   AiExamPrepIndexRoute: AiExamPrepIndexRoute,
+  AiExamPrepCourseIdTopicIdRoute: AiExamPrepCourseIdTopicIdRoute,
   AiExamPrepCourseIdIndexRoute: AiExamPrepCourseIdIndexRoute,
 }
 export const routeTree = rootRouteImport
